@@ -1,14 +1,62 @@
 'use strict';
 
 /**
+ * Словарь из которого берутся символы для конструирования имён классов
+ * @type {String}
+ */
+const vocabulary = 'abcdefghijklmnopqrstuvwxyz-_0123456789';
+
+/**
+ * Числовой массив, определяющий позицию каждого символа в конструкторе
+ * имён классов
+ * @type {Array}
+ */
+let positions = [0];
+
+/**
+ * Функция преобразует элементы массива, чтобы получить новое сочетание чисел,
+ * по которому будет строиться имя класса с помощью словаря vocabulary.
+ * @param  {Array} arr         числовой массив
+ * @param  {Number} pos         текущая проверяемая позиция массива
+ * @param  {Number} zeroLimit   лимит для первого (нулевого) символа в массиве
+ * @param  {Number} commonLimit общий лимит, равен длине строки vocabulary
+ * @return {Array}             итерированный по правилам массив
+ */
+function nextIter(arr, pos, zeroLimit, commonLimit) {
+    const currentPosition = pos;
+    const currentValue = arr[currentPosition];
+    if (currentPosition === 0) {
+        if (currentValue === zeroLimit) {
+            arr[currentPosition] = 0;
+            arr.push(0);
+            return arr;
+        }
+        arr[currentPosition] += 1;
+        return arr;
+    }
+    if (currentValue === commonLimit) {
+        arr[currentPosition] = 0;
+        return nextIter(arr, currentPosition - 1, zeroLimit, commonLimit);
+    }
+    arr[currentPosition] += 1;
+    return arr;
+}
+
+/**
+ * Функция принимает на вход массив классов CSS и возвращает объект
+ * с уникальными именами классов вида:
+ * {
+ *     class1: 'a',
+ *     class2: 'b'
+ * }
+ * Самые короткие (однобуквенные) новые имена получают классы, встречающиеся
+ * чаще других.
  * @param  {Array}  data   - массив CSS классов
  * @return {Object} result - объект с ключами в виде имён классов, и в качестве
  *                         значения — новое значение имени класса.
  */
 module.exports = function (data) {
-    let result = {
-        input: data
-    };
+    let result = {};
 
     let newSelectors = {};
 
@@ -30,66 +78,15 @@ module.exports = function (data) {
 
     selectorsArray.sort((selA, selB) => selB.weight - selA.weight);
 
-    // const vocabulary = 'abcdefghijklmnopqrstuvwxyz-_0123456789';
-    const vocabulary = 'abc';
-    let basePosition = 0,
-        selectorLenght = 1,
-        // positions = [].push(0),
-        globalCounter = 0,
-        currentSelector = '';
 
-    function nextLetter(arr, pos, numLimit) {
-        const position = arr.length - 1;
-        const lastNum = arr[pos];
-        if (lastNum >= numLimit) {
-            arr[pos] = 0;
-            if (pos === 0) {
-                return arr.push(0);
-            }
-            nextLetter(arr, pos - 1, numLimit);
-        }
-        arr[pos] += 1;
-        console.log(arr.map(item => vocabulary[item]));
-        return arr;
-    }
-
-    function getNewSelector(length) {
-        if (basePosition > 25) {
-            basePosition = 0;
-            selectorLenght += 1;
-            positions.push(0);
-        }
-
-        if (selectorLenght === 1) {
-            return currentSelector = vocabulary[basePosition];
-        }
-
-        if (positions[positions.length - 1] > vocabulary.length) {
-
-        }
-
-        let res = vocabulary[basePosition];
-        if (positions.length > 1) {
-
-        } else {
-            res += vocabulary[basePosition];
-        }
-
-        basePosition += 1;
-    }
-
-    let positions = [0,0];
+    const zeroLimit = 25,
+        commonLimit = vocabulary.length - 1;
 
     for (let selectorObject of selectorsArray) {
-        // selectorObject.newSelector = getNewSelector();
-        selectorObject.newSelector = positions.map(function (item) {
-            return vocabulary[item];
-        });
-        positions = nextLetter(positions, positions.length - 1, vocabulary.length - 1);
+        selectorObject.newSelector = positions.map(item => vocabulary[item]).join('');
+        result[selectorObject.baseSelector] = selectorObject.newSelector;
+        positions = nextIter(positions, positions.length - 1, zeroLimit, commonLimit);
     }
-    console.log(selectorsArray.slice(0, 19));
-
-    result.outputJson = newSelectors;
 
     return result;
 };
