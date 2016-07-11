@@ -1,0 +1,28 @@
+{
+  "name": "obfuscator",
+  "version": "1.0.0",
+  "description": "Obfuscates CSS selectors",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha *.spec.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/basilred/obfuscate.git"
+  },
+  "keywords": [
+    "obfuscate",
+    "obfuscator",
+    "css"
+  ],
+  "author": "Vasily Krasnov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/basilred/obfuscate/issues"
+  },
+  "homepage": "https://github.com/basilred/obfuscate#readme",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^2.5.3"
+  }
+}
