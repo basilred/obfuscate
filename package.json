@@ -4,7 +4,7 @@
   "description": "Obfuscates CSS selectors",
   "main": "index.js",
   "scripts": {
-    "test": "mocha *.spec.js"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
